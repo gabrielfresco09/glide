@@ -3,6 +3,7 @@ const app = express();
 const fs = require("fs");
 const dotenv = require("dotenv");
 const { getEmployeeById, getEmployees } = require("./apiRequests");
+const { expandEmployeeData } = require("./dataHelpers");
 
 dotenv.config();
 
@@ -15,15 +16,30 @@ app.get("*", function(req, res, next) {
 });
 
 app.get("/employees", function(req, res) {
-  getEmployees()
+  getEmployees(req.query)
     .then(response => res.json(response.data))
     .catch(err => res.end());
 });
 
 app.get("/employees/:id", function(req, res) {
   getEmployeeById(req.params.id, req.query)
-    .then(response => res.json(response.data))
-    .catch(err => res.end());
+    .then(response => {
+      if (!req.query.expand) return res.json(response.data);
+
+      const expand = Array.isArray(req.query.expand)
+        ? req.query.expand
+        : [req.query.expand];
+
+      res.json(
+        response.data.map(employee =>
+          expandEmployeeData(employee, expand, offices, departments)
+        )
+      );
+    })
+    .catch(err => {
+      console.error("Err", err);
+      res.end();
+    });
 });
 
 app.listen(3000, () => {
