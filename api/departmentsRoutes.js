@@ -23,7 +23,7 @@ departmentsRoutes.get("", async function(req, res) {
   );
 
   const expandedDepartments = await Promise.all(
-    newDepartments.map(async department => await expandData(department, expand))
+    newDepartments.map(department => expandData(department, expand))
   );
 
   res.json(expandedDepartments);

@@ -6,7 +6,7 @@ const _ = require("lodash");
 const employeesRoutes = require("./api/employeesRoutes");
 const deparmentsRoutes = require("./api/departmentsRoutes");
 const officesRoutes = require("./api/officesRoutes");
-const requestValidations = require("./helpers/validations");
+const requestValidations = require("./helpers/requestValidations");
 
 dotenv.config();
 
