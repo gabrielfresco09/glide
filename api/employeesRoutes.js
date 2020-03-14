@@ -3,10 +3,22 @@ const employeesRoutes = express.Router();
 const { getEmployeeById, getEmployees } = require("./apiRequests");
 const { expandData } = require("../helpers/dataHelpers");
 
-employeesRoutes.get("", function(req, res) {
-  getEmployees(req.query)
-    .then(response => res.json(response.data))
-    .catch(err => res.end());
+employeesRoutes.get("", async function(req, res) {
+  try {
+    const { data: employees } = await getEmployees(req.query);
+    if (!req.query.expand) return res.json(employees);
+
+    const expandedEmployees = await Promise.all(
+      employees.map(employee =>
+        expandData(employee, req.query.expand, employees)
+      )
+    );
+
+    res.json(expandedEmployees);
+  } catch (err) {
+    console.error("Error trying to fetch employees", err);
+    res.status(500).send(err.message);
+  }
 });
 
 employeesRoutes.get("/:id", async function(req, res) {
@@ -16,14 +28,14 @@ employeesRoutes.get("/:id", async function(req, res) {
     const employee = response.data[0];
     if (!req.query.expand) return res.json(employee);
 
-    const expand = Array.isArray(req.query.expand)
-      ? req.query.expand
-      : [req.query.expand];
-
-    const result = await expandData(employee, expand);
+    const result = await expandData(employee, req.query.expand);
 
     res.json(result);
   } catch (err) {
+    console.error(
+      `Error trying to fetch employee with id: ${req.params.id}`,
+      err
+    );
     res.status(500).send(err.message);
   }
 });

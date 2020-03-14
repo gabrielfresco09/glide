@@ -3,14 +3,11 @@ const departmentsRoutes = express.Router();
 
 departmentsRoutes.get("", async function(req, res) {
   const { departments } = global;
-
-  if (!req.query.expand) return res.json(departments);
-
   const {
     query: { expand, limit = 100, offset = 0 }
   } = req;
 
-  const expandArray = Array.isArray(expand) ? expand : [expand];
+  if (!expand) return res.json(departments);
 
   /* I clone the array to avoid modified the original 
   file resource since it's loaded just once on startup */
@@ -35,11 +32,12 @@ departmentsRoutes.get("/:id", async function(req, res) {
 
   if (!req.query.expand) return res.json(department);
 
-  const expand = Array.isArray(req.query.expand)
-    ? req.query.expand
-    : [req.query.expand];
-
-  const result = await expandData(department, expand, offices, departments);
+  const result = await expandData(
+    department,
+    req.query.expand,
+    offices,
+    departments
+  );
 
   res.json(result);
 });

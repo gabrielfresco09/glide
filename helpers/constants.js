@@ -5,4 +5,7 @@ const expandTypes = {
   MANAGER: "manager"
 };
 
-module.exports = { expandTypes };
+const exceptionMessages = {
+  CANNOT_EXPAND_NULL_PROPERTY: "Null property can't be expanded"
+};
+module.exports = { expandTypes, exceptionMessages };

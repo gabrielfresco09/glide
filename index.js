@@ -4,13 +4,22 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 const _ = require("lodash");
 const employeesRoutes = require("./api/employeesRoutes");
-const deparmentsRoutes = require("./api/deparmentsRoutes");
+const deparmentsRoutes = require("./api/departmentsRoutes");
 const officesRoutes = require("./api/officesRoutes");
 
 dotenv.config();
 
 app.get("*", function(req, res, next) {
   //TODO run requests params validations
+
+  if (req.query.expand) {
+    const expand = Array.isArray(req.query.expand)
+      ? req.query.expand
+      : [req.query.expand];
+
+    console.log(req.query);
+    req.query.expand = expand;
+  }
   next();
 });
 
