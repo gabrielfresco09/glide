@@ -1,7 +1,7 @@
 const express = require("express");
 const employeesRoutes = express.Router();
 const { getEmployeeById, getEmployees } = require("./apiRequests");
-const { expandData } = require("../dataHelpers");
+const { expandData } = require("../helpers/dataHelpers");
 
 employeesRoutes.get("", function(req, res) {
   getEmployees(req.query)
