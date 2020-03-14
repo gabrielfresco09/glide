@@ -11,6 +11,8 @@ const checkValidQueryParams = params => {
     if (!supportedQueryParamTypes.includes(param))
       throw new Error(exceptionMessages.INVALID_QUERY_PARAM + " " + param);
   });
+
+  return true;
 };
 
 const checkValidLimit = ({ limit }) => {
