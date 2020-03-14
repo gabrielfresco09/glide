@@ -5,28 +5,19 @@ const { expandTypes } = require("../helpers/constants");
 const expandData = async (entity, expand) => {
   await Promise.all(
     expand.map(async propToExpand => {
-      entity = await getPropertyData(propToExpand, entity);
+      entity = await getPropertyData(propToExpand.split("."), entity);
     })
   );
   return entity;
 };
 
-// TODO refactor this to allow n levels of nesting
 const getPropertyData = async (expandableProps, entity) => {
-  const propsToExpand = expandableProps.split(".");
-
-  if (entity[propsToExpand[0]])
-    entity[propsToExpand[0]] = await expandProp(
-      propsToExpand[0],
-      entity[propsToExpand[0]]
-    );
-
-  if (propsToExpand.length > 1 && entity[propsToExpand[0]][propsToExpand[1]])
-    entity[propsToExpand[0]][propsToExpand[1]] = await expandProp(
-      propsToExpand[1],
-      entity[propsToExpand[0]][propsToExpand[1]]
-    );
-
+  const key = expandableProps.shift();
+  expandedValues = await expandProp(key, entity[key]);
+  entity[key] = expandedValues;
+  if (expandableProps.length) {
+    entity[key] = await getPropertyData(expandableProps, entity[key]);
+  }
   return entity;
 };
 
