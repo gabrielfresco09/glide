@@ -6,6 +6,24 @@ const expandTypes = {
 };
 
 const exceptionMessages = {
-  CANNOT_EXPAND_NULL_PROPERTY: "Null property can't be expanded"
+  LIMIT_TO_HIGH: "Limit can't be higher than 1000",
+  UNRECOGNIZED_EXPAND_VALUE: "Unrecognized expand value",
+  INVALID_QUERY_PARAM: "Unrecognized query param"
 };
-module.exports = { expandTypes, exceptionMessages };
+
+const limitValues = {
+  MAX: 1000,
+  DEFAULT: 100
+};
+
+const supportedQueryParamTypes = ["limit", "offset", "expand"];
+
+const EXPAND_SEPARATOR = ".";
+
+module.exports = {
+  expandTypes,
+  exceptionMessages,
+  limitValues,
+  supportedQueryParamTypes,
+  EXPAND_SEPARATOR
+};

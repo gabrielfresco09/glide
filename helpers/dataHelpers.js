@@ -1,6 +1,6 @@
 const _ = require("lodash");
 const { getEmployeeById } = require("../api/apiRequests");
-const { expandTypes, exceptionMessages } = require("../helpers/constants");
+const { expandTypes, EXPAND_SEPARATOR } = require("../helpers/constants");
 
 /**
  *
@@ -12,7 +12,7 @@ const expandData = async (entity, expand, employeesLoaded = []) => {
   await Promise.all(
     expand.map(async propToExpand => {
       entity = await getPropertyData(
-        propToExpand.split("."),
+        propToExpand.split(EXPAND_SEPARATOR),
         entity,
         employeesLoaded
       );
@@ -29,7 +29,7 @@ const expandData = async (entity, expand, employeesLoaded = []) => {
  */
 const getPropertyData = async (expandableProps, entity, employeesLoaded) => {
   const key = expandableProps.shift();
-  if (!entity || !entity[key]) return null;
+  if (!entity[key]) return entity;
   expandedValues = await expandProp(key, entity[key], employeesLoaded);
   entity[key] = expandedValues;
   if (expandableProps.length) {
@@ -67,10 +67,25 @@ const expandProp = async (
       const manager = _.find(employeesLocalSource, { id: currentPropValue });
       if (manager) return manager;
       const response = await getEmployeeById(currentPropValue);
+      /* adds the newly found employee to avoid searching 
+      for it later on this same request if necessary */
+      employeesLocalSource.push(response.data[0]);
       return response.data[0];
     default:
       break;
   }
 };
 
-module.exports = { expandData };
+const handlePaginationOnLocalSourceData = (
+  sourceData,
+  { limit = 100, offset = 0 }
+) => _.drop(sourceData, offset).slice(0, limit);
+
+const handleFindOnLocalSourceData = (sourceData, id) =>
+  _.find(sourceData, { id: parseInt(id, 10) });
+
+module.exports = {
+  expandData,
+  handlePaginationOnLocalSourceData,
+  handleFindOnLocalSourceData
+};

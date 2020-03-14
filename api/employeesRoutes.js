@@ -24,8 +24,8 @@ employeesRoutes.get("", async function(req, res) {
 employeesRoutes.get("/:id", async function(req, res) {
   try {
     const response = await getEmployeeById(req.params.id, req.query);
-    // Since no expand parameter was found, we avoid searching new data
     const employee = response.data[0];
+    // Since no expand parameter was found, we avoid searching new data
     if (!req.query.expand) return res.json(employee);
 
     const result = await expandData(employee, req.query.expand);

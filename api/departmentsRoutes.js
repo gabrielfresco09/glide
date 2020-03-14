@@ -1,25 +1,29 @@
 const express = require("express");
+const _ = require("lodash");
 const departmentsRoutes = express.Router();
+const {
+  expandData,
+  handlePaginationOnLocalSourceData,
+  handleFindOnLocalSourceData
+} = require("../helpers/dataHelpers");
 
 departmentsRoutes.get("", async function(req, res) {
   const { departments } = global;
   const {
-    query: { expand, limit = 100, offset = 0 }
+    query: { expand }
   } = req;
 
   if (!expand) return res.json(departments);
 
-  /* I clone the array to avoid modified the original 
+  /* I clone the array to avoid to modify the original 
   file resource since it's loaded just once on startup */
-  const newDepartments = _.drop(_.cloneDeep(departments), offset).slice(
-    0,
-    limit
+  const newDepartments = handlePaginationOnLocalSourceData(
+    _.cloneDeep(departments),
+    req.query
   );
 
   const expandedDepartments = await Promise.all(
-    newDepartments.map(department =>
-      expandData(department, expandArray, offices, departments)
-    )
+    newDepartments.map(async department => await expandData(department, expand))
   );
 
   res.json(expandedDepartments);
@@ -28,18 +32,16 @@ departmentsRoutes.get("", async function(req, res) {
 departmentsRoutes.get("/:id", async function(req, res) {
   const { departments } = global;
 
-  const department = _.find(departments, { id: parseInt(req.params.id, 10) });
+  const department = handleFindOnLocalSourceData(departments, req.params.id);
 
   if (!req.query.expand) return res.json(department);
 
-  const result = await expandData(
-    department,
-    req.query.expand,
-    offices,
-    departments
+  const expandedDepartment = await expandData(
+    _.cloneDeep(department),
+    req.query.expand
   );
 
-  res.json(result);
+  res.json(expandedDepartment);
 });
 
 module.exports = departmentsRoutes;
