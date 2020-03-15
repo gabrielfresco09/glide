@@ -10,8 +10,6 @@ const checkValidQueryParams = params => {
 
     supportedParam.validateValue(params[param]);
   });
-
-  return true;
 };
 
 module.exports = [checkValidQueryParams];

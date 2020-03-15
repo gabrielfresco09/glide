@@ -15,7 +15,7 @@ departmentsRoutes.get("", async function(req, res) {
 
   if (!expand) return res.json(departments);
 
-  /* I clone the array to avoid to modify the original 
+  /* Cloning the array to avoid modifiying the original 
   file resource since it's loaded just once on startup */
   const newDepartments = handlePaginationOnLocalSourceData(
     _.cloneDeep(departments),

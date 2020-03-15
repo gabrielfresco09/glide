@@ -6,7 +6,7 @@ const {
 } = require("./constants");
 
 const checkValidLimit = limit => {
-  if (!limit) return;
+  if (limit !== 0 && !limit) return;
   if (isNaN(limit)) throw new Error(exceptionMessages.LIMIT_NOT_VALID);
   if (limit < 1) throw new Error(exceptionMessages.LIMIT_MUST_BE_HIGHER_THAN_0);
   if (limit > limitValues.MAX) throw new Error(exceptionMessages.LIMIT_TO_HIGH);
@@ -15,6 +15,7 @@ const checkValidLimit = limit => {
 const checkValidOffset = offset => {
   if (offset && isNaN(offset))
     throw new Error(exceptionMessages.OFFSET_NOT_VALID);
+  if (offset < 0) throw new Error(exceptionMessages.OFFSET_TO_LOW);
 };
 
 const checkExpandValues = expand => {

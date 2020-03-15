@@ -15,11 +15,12 @@ const {
 const expandData = async (entity, expand, employeesLoaded = []) => {
   await Promise.all(
     expand.map(async propToExpand => {
-      entity = await getPropertyData(
+      const expandedEntity = await getPropertyData(
         propToExpand.split(EXPAND_SEPARATOR),
-        _.cloneDeep(entity),
+        entity,
         employeesLoaded
       );
+      entity = _.cloneDeep(expandedEntity);
     })
   );
   return entity;
@@ -27,21 +28,17 @@ const expandData = async (entity, expand, employeesLoaded = []) => {
 
 /**
  *
- * @param {Array} expandableProps - Array of props to be expanded
+ * @param {Array of expandTypes} expandableProps - Array of props to be expanded
  * @param {Object} entity - Entity which props will be modified
  * @returns {Updated entity with all the required properties expanded}
  */
 const getPropertyData = async (expandableProps, entity, employeesLoaded) => {
   const key = expandableProps.shift();
-  if (!entity[key]) return entity;
+  if (!entity || !entity[key]) return entity;
   expandedValues = await expandProp(key, entity[key], employeesLoaded);
   entity[key] = expandedValues;
   if (expandableProps.length) {
-    await getPropertyData(
-      expandableProps,
-      _.cloneDeep(entity[key]),
-      employeesLoaded
-    );
+    await getPropertyData(expandableProps, entity[key], employeesLoaded);
   }
   return entity;
 };
@@ -70,8 +67,8 @@ const expandProp = async (
        to avoid making unnecessary requests, if not found here, then calls the api.*/
       const manager = _.find(employeesLocalSource, { id: currentPropValue });
       if (manager) return manager;
+      
       const response = await getEmployeeById(currentPropValue);
-
       /* adds the newly found employee to avoid searching 
       for it later on this same request if necessary */
       employeesLocalSource.push(response.data[0]);

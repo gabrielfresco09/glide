@@ -9,3 +9,7 @@
 
 1. npm install
 2. npm run start
+
+### Runinng tests
+1. npm install
+2. npm run test

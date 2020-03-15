@@ -31,6 +31,8 @@ app.use("/departments", deparmentsRoutes);
 app.use("/offices", officesRoutes);
 
 app.listen(3000, () => {
+  // this should be done asynchronously but since it is a sample file
+  // and I know it's small I've handled synchronously to make code simplier
   global.departments = JSON.parse(fs.readFileSync("./assets/departments.json"));
   global.offices = JSON.parse(fs.readFileSync("./assets/offices.json"));
   console.log("Server running on port 3000");
