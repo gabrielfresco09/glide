@@ -1,6 +1,10 @@
 const _ = require("lodash");
 const { getEmployeeById } = require("../api/apiRequests");
-const { expandTypes, EXPAND_SEPARATOR } = require("../helpers/constants");
+const {
+  expandTypes,
+  EXPAND_SEPARATOR,
+  limitValues
+} = require("../helpers/constants");
 
 /**
  *
@@ -13,7 +17,7 @@ const expandData = async (entity, expand, employeesLoaded = []) => {
     expand.map(async propToExpand => {
       entity = await getPropertyData(
         propToExpand.split(EXPAND_SEPARATOR),
-        entity,
+        _.cloneDeep(entity),
         employeesLoaded
       );
     })
@@ -33,9 +37,9 @@ const getPropertyData = async (expandableProps, entity, employeesLoaded) => {
   expandedValues = await expandProp(key, entity[key], employeesLoaded);
   entity[key] = expandedValues;
   if (expandableProps.length) {
-    entity[key] = await getPropertyData(
+    await getPropertyData(
       expandableProps,
-      entity[key],
+      _.cloneDeep(entity[key]),
       employeesLoaded
     );
   }
@@ -67,6 +71,7 @@ const expandProp = async (
       const manager = _.find(employeesLocalSource, { id: currentPropValue });
       if (manager) return manager;
       const response = await getEmployeeById(currentPropValue);
+
       /* adds the newly found employee to avoid searching 
       for it later on this same request if necessary */
       employeesLocalSource.push(response.data[0]);
@@ -78,7 +83,7 @@ const expandProp = async (
 
 const handlePaginationOnLocalSourceData = (
   sourceData,
-  { limit = 100, offset = 0 }
+  { limit = limitValues.DEFAULT, offset = 0 }
 ) => _.drop(sourceData, offset).slice(0, limit);
 
 const handleFindOnLocalSourceData = (sourceData, id) =>

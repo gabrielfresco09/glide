@@ -1,10 +1,6 @@
 const chai = require("chai");
 const fs = require("fs");
-const [
-  checkValidQueryParams,
-  checkValidLimit,
-  checkExpandValues
-] = require("../helpers/validations");
+const [checkValidQueryParams] = require("../helpers/requestValidations");
 const { exceptionMessages } = require("../helpers/constants");
 
 const expect = chai.expect;

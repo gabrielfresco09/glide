@@ -22,7 +22,7 @@ app.get("*", function(req, res, next) {
     next();
   } catch (err) {
     console.error("Error during request validation, invalid params", err);
-    res.status(400).send(err.message);
+    res.status(400).json({ error: err.message });
   }
 });
 

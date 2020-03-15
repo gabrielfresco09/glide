@@ -9,7 +9,7 @@ employeesRoutes.get("", async function(req, res) {
     if (!req.query.expand) return res.json(employees);
 
     const expandedEmployees = await Promise.all(
-      employees.map(employee =>
+      employees.map(async employee =>
         expandData(employee, req.query.expand, employees)
       )
     );
@@ -17,7 +17,7 @@ employeesRoutes.get("", async function(req, res) {
     res.json(expandedEmployees);
   } catch (err) {
     console.error("Error trying to fetch employees", err);
-    res.status(500).send(err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -36,7 +36,7 @@ employeesRoutes.get("/:id", async function(req, res) {
       `Error trying to fetch employee with id: ${req.params.id}`,
       err
     );
-    res.status(500).send(err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
